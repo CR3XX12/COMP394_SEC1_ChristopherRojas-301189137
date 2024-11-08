@@ -733,6 +733,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 7473363505966051730, guid: 856752f5b804a0e4db376e4cc7e3f42a, type: 3}
+      propertyPath: goldenApplePrefab
+      value: 
+      objectReference: {fileID: 5038636618951041861, guid: 15b45109d2420f445a028e2a17f50419, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

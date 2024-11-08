@@ -4,47 +4,61 @@ using UnityEngine;
 
 public class AppleTree : MonoBehaviour
 {
-   [Header("Set in Inspector")]
- // Prefab for instantiating apples
- public GameObject applePrefab; // Speed at which the AppleTree moves
- public float speed = 1f; // Distance where AppleTree turns around
- public float leftAndRightEdge = 10f; // Chance that the AppleTree will change directions
- public float chanceToChangeDirections = 0.1f; // Rate at which Apples will be instantiated
- public float secondsBetweenAppleDrops = 1f;
+    [Header("Set in Inspector")]
+    public GameObject applePrefab; // Prefab for regular apple
+    public GameObject goldenApplePrefab; // Prefab for golden apple
+    public float speed = 1f; // Speed at which the AppleTree moves
+    public float leftAndRightEdge = 10f; // Distance where AppleTree turns around
+    public float chanceToChangeDirections = 0.1f; // Chance to change direction
+    public float secondsBetweenAppleDrops = 1f; // Time between apple drops
 
- void Start () 
- {
-  /// Dropping apples every second
-  Invoke( "DropApple", 2f ); // a
- }
- void DropApple() 
- { // b
-  GameObject apple = Instantiate<GameObject>( applePrefab ); // c
-  apple.transform.position = transform.position; // d
-  Invoke( "DropApple", secondsBetweenAppleDrops ); // e
- }
- void Update ()
-  {
+    // Public static reference to allow access from ApplePicker
+    public static AppleTree instance;
 
-    // Basic Movement
-    Vector3 pos = transform.position; // b
-    pos.x += speed * Time.deltaTime; // c
-    transform.position = pos; // d
-    
-    // Changing Direction
-        if ( pos.x < -leftAndRightEdge ) 
-        {
-          speed = Mathf.Abs(speed); // Move right
-          } else if ( pos.x > leftAndRightEdge ) {
-          speed = -Mathf.Abs(speed); // Move left
-        } // a
-      }
-      void FixedUpdate()
-       {
-      // Changing Direction Randomly is now time-based because of FixedUpdate()
-      if ( Random.value < chanceToChangeDirections ) 
-      { // b
-        speed *= -1; // Change direction
+    void Awake() {
+        instance = this;
+    }
+
+    void Start() 
+    {
+        Invoke("DropApple", 2f); // Drop the first apple after 2 seconds
+    }
+
+    void DropApple() 
+    {
+        GameObject apple;
+        if (Random.value < 0.1f) { // 10% chance to drop a golden apple
+            apple = Instantiate<GameObject>(goldenApplePrefab);
+        } else {
+            apple = Instantiate<GameObject>(applePrefab);
+        }
+        apple.transform.position = transform.position;
+        Invoke("DropApple", secondsBetweenAppleDrops);
+    }
+
+    void Update() 
+    {
+        if (secondsBetweenAppleDrops > 0.2f) { // Set a minimum limit for apple drop speed
+            secondsBetweenAppleDrops -= 0.01f * Time.deltaTime; // Speed up apple drops over time
+        }
+
+        // Basic movement of the AppleTree
+        Vector3 pos = transform.position;
+        pos.x += speed * Time.deltaTime;
+        transform.position = pos;
+
+        // Change direction if at edge
+        if (pos.x < -leftAndRightEdge) {
+            speed = Mathf.Abs(speed); // Move right
+        } else if (pos.x > leftAndRightEdge) {
+            speed = -Mathf.Abs(speed); // Move left
+        }
+    }
+
+    void FixedUpdate() 
+    {
+        if (Random.value < chanceToChangeDirections) {
+            speed *= -1; // Change direction randomly
         }
     }
 }

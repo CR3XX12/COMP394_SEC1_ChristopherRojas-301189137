@@ -5,38 +5,58 @@ using UnityEngine.SceneManagement;
 
 public class ApplePicker : MonoBehaviour
 {
-     [Header("Set in Inspector")] // a
+    [Header("Set in Inspector")]
     public GameObject basketPrefab;
     public int numBaskets = 3;
     public float basketBottomY = -14f;
     public float basketSpacingY = 2f;
     public List<GameObject> basketList;
 
-    void Start () {
-        for (int i=0; i<numBaskets; i++) {
-        GameObject tBasketGO = Instantiate<GameObject>( basketPrefab );
-        Vector3 pos = Vector3.zero;
-        pos.y = basketBottomY + ( basketSpacingY * i );
-        tBasketGO.transform.position = pos;
+    void Start() 
+    {
+        basketList = new List<GameObject>(); // Initialize the basket list
+        for (int i = 0; i < numBaskets; i++) {
+            GameObject tBasketGO = Instantiate<GameObject>(basketPrefab);
+            Vector3 pos = Vector3.zero;
+            pos.y = basketBottomY + (basketSpacingY * i);
+            tBasketGO.transform.position = pos;
+            basketList.Add(tBasketGO); // Add to the list
         }
     }
-    public void AppleDestroyed() {
-        // Destroy all of the falling apples
+
+    public void AppleDestroyed() 
+    {
+        // Destroy all falling apples
         GameObject[] tAppleArray = GameObject.FindGameObjectsWithTag("Apple");
         foreach (GameObject tGO in tAppleArray) {
-            Destroy(tGO); // Destroy each apple
+            Destroy(tGO);
         }
-        // Destroy one of the baskets
-        int basketIndex = basketList.Count - 1;  // e - Get the index of the last basket in the list
-        GameObject tBasketGO = basketList[basketIndex]; // Reference the last basket GameObject
-        basketList.RemoveAt(basketIndex); // Remove it from the list
-        Destroy(tBasketGO);               // Destroy the GameObject
+
+        // Destroy a basket
+        int basketIndex = basketList.Count - 1;
+        GameObject tBasketGO = basketList[basketIndex];
+        basketList.RemoveAt(basketIndex);
+        Destroy(tBasketGO);
 
         // If no baskets are left, restart the game
         if (basketList.Count == 0) {
-            SceneManager.LoadScene("_Scene_0"); // Restart the game
+            SceneManager.LoadScene("_Scene_0");
         }
-    
-    }
     }
 
+    public void ApplyPowerUp(string powerUpType) 
+    {
+        if (powerUpType == "SlowTime") {
+            StartCoroutine(SlowTimeEffect());
+        }
+    }
+
+    IEnumerator SlowTimeEffect() 
+    {
+        // Access the AppleTree's drop speed
+        float originalSpeed = AppleTree.instance.secondsBetweenAppleDrops;
+        AppleTree.instance.secondsBetweenAppleDrops *= 2;  // Slow down apple drop speed
+        yield return new WaitForSeconds(5); // Effect lasts 5 seconds
+        AppleTree.instance.secondsBetweenAppleDrops = originalSpeed; // Return to normal speed
+    }
+}
